@@ -1,9 +1,9 @@
-var colors = ["red", "orange", "yellow", "green"];
+var colors = ["red", "orange", "gold", "green"];
 
 function getColor(sketch_ratio) {
-    if(sketch_ratio < 0.3) return colors[3];
-    else if(sketch_ratio < 0.5) return colors[2];
-    else if(sketch_ratio < 0.7) return colors[1];
+    if(sketch_ratio < 0.4) return colors[3];
+    else if(sketch_ratio < 0.6) return colors[2];
+    else if(sketch_ratio < 0.8) return colors[1];
     return colors[0];
 }
 
