@@ -1,30 +1,42 @@
 var colors = ["red", "orange", "yellow", "green"];
 
 function getColor(sketch_ratio) {
-    if(sketch_ratio < 0.3) return colors[3];
-    else if(sketch_ratio < 0.5) return colors[2];
-    else if(sketch_ratio < 0.7) return colors[1];
+    if (sketch_ratio < 0.3) return colors[3];
+    else if (sketch_ratio < 0.5) return colors[2];
+    else if (sketch_ratio < 0.7) return colors[1];
     return colors[0];
 }
 
-var currentLoc = {lat:42.35, lng:-83.05};
+var currentLoc = {
+    lat: 42.35,
+    lng: -83.05
+};
+var heatMapData = [];
 
 function initMap() {
-    //var myLatLng = {lat: 42.3, lng: -83};
-    //var myLatLng = {lat: latitude, lng: longitude};
-    //console.log(myLatLng.lat, myLatLng.lng);
-
+    //TEMPORARY TEST
+    processPosition({
+        coords: {
+            latitude: 42.33,
+            longitude: -83.05
+        }
+    });
+    //END TEMPORARY TEST
     // Create a map object and specify the DOM element for display.
     var map = new google.maps.Map(document.getElementById("map"), {
         center: currentLoc,
         zoom: 16
     });
-
+    gm.info.watchPosition(processPosition, true);
     // Create a marker and set its position.
     var marker = new google.maps.Marker({
         map: map,
         position: currentLoc
     });
+    var heatmap = new google.maps.visualization.HeatmapLayer({
+        data: heatMapData
+    });
+    heatmap.setMap(map);
 }
 
 function changeBar(sketch_ratio) {
@@ -38,35 +50,57 @@ function changeBar(sketch_ratio) {
     ctx.fill();
 
     ctx.beginPath();
-    ctx.rect(0, 0, c.width, c.height*(1-sketch_ratio));
+    ctx.rect(0, 0, c.width, c.height * (1 - sketch_ratio));
     ctx.fillStyle = "white";
     ctx.fill();
 }
 
-function updateSafetyState(sketch_factor) {
+function withinMapBounds(pt1, pt2) {
+    var lon1 = pt1[0];
+    var lat1 = pt1[1];
+    var lon2 = pt2[0];
+    var lat2 = pt2[1];
+    if (Math.abs(lon1 - lon2) < 0.01 && Math.abs(lat1 - lat2) < 0.01) { //if within bounds of lat/long
+        //console.log("crime lat,lon: " + lat1 + ", " + lon1);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function updateSafetyState(sketch_factor, current_location) {
     var sketch_max = 100;
     var sketch_ratio = sketch_factor / sketch_max;
-
-    initMap();
     changeBar(sketch_ratio);
+    //heat map stuff
+    heatMapData = []; //reset heatMapData
+    for (var i = 0; i < globalJSON.length; ++i) {
+        crime = globalJSON[i];
+        //console.log(dist(crime.location.coordinates, current_location));
+        if (withinMapBounds(crime.location.coordinates, current_location)) {
+            infraction_level = category_weights[crime.category];
+            if (infraction_level != undefined) {
+                // only add for known category names
+                heatMapData.push({
+                    location: new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]),
+                    weight: infraction_level
+                });
+            }
+        }
+    }
 }
 
-gm.info.watchPosition(processPosition, true)
+function processPosition(position) {
+    var lat = position.coords.latitude;
+    console.log(position.coords.latitude);
+    var lng = position.coords.longitude;
+    console.log(lng);
 
-function processPosition(position){
-  var lat = position.coords.latitude;
-  console.log(position.coords.latitude);
-  var lng = position.coords.longitude;
-  console.log(lng);
+    currentLoc.lat = lat;
+    currentLoc.lng = lng;
 
-  currentLoc.lat = lat;
-  currentLoc.lng = lng;
+    var flipped = [lng, lat];
 
-  var flipped = [lng,lat];
-
-  //initMap();
-  badness_at_point(flipped, updateSafetyState);
+    //initMap();
+    badness_at_point(flipped, updateSafetyState);
 }
-
-initMap();
-changeBar(0);
