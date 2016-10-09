@@ -7,26 +7,25 @@ function getColor(sketch_ratio) {
     return colors[0];
 }
 
-var currentLoc = {lat:42.35, lng:-83.05};
+var currentLoc = {lat:42.340473, lng:-83.062516};
 var heatMapData = [];
+var marker;
+var map;
 
 function initMap() {
-    //TEMPORARY TEST
-    processPosition({
-        coords: {
-            latitude: 42.33,
-            longitude: -83.05
-        }
-    });
-    //END TEMPORARY TEST
+	// processPosition({
+ //  		coords: {
+ //    		latitude: lat_arr[i],
+ //    		longitude: lng_arr[i]
+	// }});
     // Create a map object and specify the DOM element for display.
-    var map = new google.maps.Map(document.getElementById("map"), {
+    map = new google.maps.Map(document.getElementById("map"), {
         center: currentLoc,
         zoom: 16
     });
     gm.info.watchPosition(processPosition, true);
     // Create a marker and set its position.
-    var marker = new google.maps.Marker({
+    marker = new google.maps.Marker({
         map: map,
         position: currentLoc
     });
@@ -88,15 +87,59 @@ function updateSafetyState(sketch_factor, current_location) {
 
 function processPosition(position) {
     var lat = position.coords.latitude;
-    console.log(position.coords.latitude);
+    //console.log(lat);
     var lng = position.coords.longitude;
-    console.log(lng);
+    //console.log(lng);
 
     currentLoc.lat = lat;
     currentLoc.lng = lng;
 
+    marker.setPosition( new google.maps.LatLng(lat_arr[i], lng_arr[i]) );
+  	map.panTo( new google.maps.LatLng(lat_arr[i], lng_arr[i]) );
+
     var flipped = [lng, lat];
 
-    //initMap();
     badness_at_point(flipped, updateSafetyState);
 }
+
+function resetButton() {
+
+	// processPosition({
+ //  		coords: {
+ //    		latitude: 42.340473,
+ //    		longitude: -83.062516}
+ //    }});
+    marker.setPosition( new google.maps.LatLng(42.340473, -83.062516) );
+  	map.panTo( new google.maps.LatLng(42.340473, -83.062516) );
+
+}
+
+// DEMO JOURNEY CODE
+
+
+var i = 0;
+// Coordinates for points that map the demo journey
+var lat_arr = [42.340473, 42.340153, 42.342247, 42.343856, 42.346077, 42.347829, 42.349248, 42.351452, 42.353133, 42.354885, 42.357208, 42.358334, 42.360046, 42.361537, 42.362774, 42.364034, 42.365548, 42.366634, 42.368521, 42.370177, 42.372096, 42.373110, 42.373816, 42.374743, 42.374949, 42.374442, 42.373911, 42.373934, 42.374488];
+var lng_arr = [-83.062516, -83.066138, -83.067490, -83.068251, -83.069238, -83.070075, -83.070719, -83.071945, -83.072964, -83.074005, -83.074767, -83.074938, -83.074144, -83.072353, -83.070389, -83.067975, -83.064767, -83.062010, -83.058030, -83.055540, -83.052096, -83.049296, -83.046968, -83.046453, -83.047601, -83.049210, -83.050519, -83.049243, -83.047438];
+console.log("arr 1 length: " + lat_arr.length);
+console.log("arr 2 length: " + lng_arr.length);
+
+var interval
+
+function buttonPress() {
+	interval = setInterval(buttonAction, 1000);
+}
+
+function buttonAction() {
+  
+  processPosition({
+  coords: {
+    latitude: lat_arr[i],
+    longitude: lng_arr[i]
+  }});
+  i++;
+  if (i >= lat_arr.length) {
+    clearInterval(interval);
+  }
+}
+
