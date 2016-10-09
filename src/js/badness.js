@@ -18,7 +18,7 @@ function getData(callback) {
         if (elapsed > 86400000) { //86400000 for one day
             pullData(function(data) {
                 globalJSON = JSON.parse(data);
-                
+                populateHeatmap();
                 callback(globalJSON);
             });
         } else { //if a day has not elapsed, check the ram then the disk
@@ -26,7 +26,7 @@ function getData(callback) {
                 console.log("no data in ram, reading from disk");
                 var data = gm.filesystem.readFile("data.json");
                 globalJSON = JSON.parse(data);
-
+                populateHeatmap();
                 callback(globalJSON);
             } else {
                 callback(globalJSON);
@@ -38,6 +38,22 @@ function getData(callback) {
         pullData(function(data) {
             callback(data);
         });
+    }
+}
+function populateHeatmap(){
+if(globalJSON != null){
+        heatMapData.clear(); //reset heatMapData
+        for (var i = 0; i < globalJSON.length; ++i) {
+            crime = globalJSON[i];
+            //console.log(dist(crime.location.coordinates, current_location));
+                infraction_level = category_weights[crime.category];
+                if (infraction_level != undefined && infraction_level != 0) {
+                    // only add for known category names
+                    heatMapData.push({location: new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]),weight:infraction_level});
+                    //heatMapData.push(new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]));
+                }
+            
+        }
     }
 }
 
@@ -148,7 +164,7 @@ function badness_at_point(current_location, callback) {
             }
         }
         console.log("sum: " + sum);
-        sum = (sum / range ** 2) * 8000;
+        sum = (sum / range ** 2) * 9000;
         if (sum > 100) {
             sum = 100;
         }

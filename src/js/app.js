@@ -39,11 +39,16 @@ function initMap() {
         position: currentLoc
     });
     heatmap = new google.maps.visualization.HeatmapLayer({
-        data: heatMapData
+        data: heatMapData,
+        options: {maxIntensity: 10.0}
     });
     heatmap.setMap(map);
-    google.maps.event.addListener(map, 'bounds_changed', function() {
-        updateHeatMap();
+    //optional: inits read data and heat map stuff 
+    processPosition({
+        coords: {
+            latitude: 42.340473,
+            longitude: -83.062516
+        }
     });
 }
 
@@ -71,31 +76,16 @@ function withinMapBounds(pt1) {
         return false;
     }
 }
+var currentLocationSketch; //actually just the current sketch ratio
 
 function updateSafetyState(sketch_factor, current_location) {
     var sketch_max = 100;
     var sketch_ratio = sketch_factor / sketch_max;
+    currentLocationSketch = sketch_ratio;
+    processData();
     changeBar(sketch_ratio);
-    updateHeatMap(current_location);
 }
 
-function updateHeatMap() {
-    if(globalJSON != null){
-        heatMapData.clear(); //reset heatMapData
-        for (var i = 0; i < globalJSON.length; ++i) {
-            crime = globalJSON[i];
-            //console.log(dist(crime.location.coordinates, current_location));
-            if (withinMapBounds(crime.location.coordinates)) {
-                infraction_level = category_weights[crime.category];
-                if (infraction_level != undefined) {
-                    // only add for known category names
-                    heatMapData.push({location: new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]),weight:infraction_level});
-                    //console.log(heatMapData.length);
-                }
-            }
-        }
-    }
-}
 
 function processPosition(position) {
     var lat = position.coords.latitude;
@@ -118,7 +108,36 @@ function processPosition(position) {
 // MONITORING CODE
 
 var vdata = gm.info.watchVehicleData(
-	processData,
+	function(data){ //success
+        // Setting variables
+        //EV_max_range = data.EV_max_range;
+        if(data.fuel_level != null){
+            fuel_level = data.fuel_level;
+        }
+        if(data.tire_right_front_pressure != null){
+            tire_right_front_pressure = data.tire_right_front_pressure;
+
+        }
+        if(data.tire_left_front_pressure != null){
+            tire_left_front_pressure = data.tire_left_front_pressure;
+        }
+        if(data.tire_right_rear_pressure != null){
+            tire_right_rear_pressure = data.tire_right_rear_pressure;
+        }
+        if(data.tire_left_rear_pressure != null){
+            tire_left_rear_pressure = data.tire_left_rear_pressure;
+        }
+        if(data.bulb_center_fail != null){
+            bulb_center_fail = data.bulb_center_fail;
+        }
+        if(data.bulb_frontright_turn_fail != null){
+            bulb_frontright_turn_fail =  data.bulb_frontright_turn_fail;
+        }
+        if(data.bulb_frontleft_turn_fail != null){
+            bulb_frontleft_turn_fail = data.bulb_frontleft_turn_fail;
+        }
+        processData();
+    },
 	function(){},
 	// Fuel
 	['EV_max_range',
@@ -145,36 +164,33 @@ var bulb_frontright_turn_fail;
 var bulb_frontleft_turn_fail;
 
 
-function processData(data) {
-
-	// Setting variables
-	//EV_max_range = data.EV_max_range;
-	fuel_level = data.fuel_level;
-    console.log(fuel_level);
-	tire_right_front_pressure = data.tire_right_front_pressure;
-	tire_left_front_pressure = data.tire_left_front_pressure;
-	tire_right_rear_pressure = data.tire_right_rear_pressure;
-	tire_left_rear_pressure = data.tire_left_rear_pressure;
-	bulb_center_fail = data.bulb_center_fail;
-	bulb_frontright_turn_fail = data.bulb_frontright_turn_fail;
-	bulb_frontleft_turn_fail = data.bulb_frontleft_turn_fail;
-
-
+function processData() {
 	//console.log(EV_max_range);
 	// Fuel
+    var sketchThreshold = 0.5;
 	if (fuel_level < 10) {
 		var element = document.getElementById('alertBoxFuel');
 		element.style.opacity = "1";
+        if(currentLocationSketch > sketchThreshold){
+            element.innerHTML = "Fuel low, wait to refill";
+        }else{
+           element.innerHTML = "Fuel low, refill soon";
+        }
 	} else {
 		var element = document.getElementById('alertBoxFuel');
 		element.style.opacity = "0";
 	};
 
-//console.log(tire_right_front_pressure);
+    //console.log(tire_right_front_pressure);
 	// Tires
 	if (tire_right_front_pressure < 138 || tire_left_front_pressure < 138 || tire_right_rear_pressure < 138 || tire_left_rear_pressure < 138) { // kPaG
 		var element = document.getElementById('alertBoxTires');
 		element.style.opacity = "1";
+        if(currentLocationSketch > sketchThreshold){
+            element.innerHTML = "Tire P. Low, wait to refill";
+        }else{
+           element.innerHTML = "Tire P. Low, refill soon";
+        }
 	} else {
 		var element = document.getElementById('alertBoxTires');
 		element.style.opacity = "0";
@@ -185,6 +201,11 @@ function processData(data) {
 	if (bulb_center_fail == 1 || bulb_frontright_turn_fail == 1 || bulb_frontleft_turn_fail == 1) { // 1/0
 		var element = document.getElementById('alertBoxLights');
 		element.style.opacity = "1";
+        if(currentLocationSketch > sketchThreshold){
+            element.innerHTML = "Burnt out light, don't stop yet";
+        }else{
+           element.innerHTML = "Burnt out light, replace soon";
+        }
 	} else {
 		var element = document.getElementById('alertBoxLights');
 		element.style.opacity = "0";
