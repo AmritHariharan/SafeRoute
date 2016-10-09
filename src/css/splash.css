@@ -1,6 +1,6 @@
 body{
-  background-size: cover;
-  background: url("/images/splash_bg.png");
+  background-size: 800px 390px;
+  background-image: url("../images/splash_bg.png");
 }
 #main {
     margin-top: 8em;

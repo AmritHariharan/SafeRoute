@@ -1,11 +1,22 @@
-var colors = ["red", "orange", "gold", "green"];
-
-function getColor(sketch_ratio) {
-    if (sketch_ratio < 0.4) return colors[3];
-    else if (sketch_ratio < 0.6) return colors[2];
-    else if (sketch_ratio < 0.8) return colors[1];
-    return colors[0];
+function getColor(scroll){
+    var rgbInitial = [0x0,0xFF,0x0];
+    var rgbFinal = [0xFF,0x0,0x0];
+    var rgbCurrent = [];
+    for(var i=0;i<3;i++){
+        rgbCurrent[i] = Math.round(rgbInitial[i]-(rgbInitial[i]-rgbFinal[i])*scroll); 
+        if(rgbFinal[i]<rgbInitial[i]&&rgbCurrent[i]<rgbFinal[i]){
+            rgbCurrent[i] = rgbFinal[i];
+        }else if(rgbFinal[i]>rgbInitial[i]&&rgbCurrent[i]>rgbFinal[i]){
+            rgbCurrent[i] = rgbFinal[i];
+        }
+    }
+    return "#" + componentToHex(rgbCurrent[0]) + componentToHex(rgbCurrent[1]) + componentToHex(rgbCurrent[2]);
 }
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
 var currentLoc = {
     lat: 42.340473,
     lng: -83.062516
@@ -69,17 +80,18 @@ function updateSafetyState(sketch_factor, current_location) {
 }
 
 function updateHeatMap() {
-    heatMapData.clear(); //reset heatMapData
-    for (var i = 0; i < globalJSON.length; ++i) {
-        crime = globalJSON[i];
-        //console.log(dist(crime.location.coordinates, current_location));
-        if (withinMapBounds(crime.location.coordinates)) {
-            infraction_level = category_weights[crime.category];
-            if (infraction_level != undefined) {
-                // only add for known category names
-                //console.log("pushed: "+new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]));
-                heatMapData.push(new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]));
-                //console.log(heatMapData.length);
+    if(globalJSON != null){
+        heatMapData.clear(); //reset heatMapData
+        for (var i = 0; i < globalJSON.length; ++i) {
+            crime = globalJSON[i];
+            //console.log(dist(crime.location.coordinates, current_location));
+            if (withinMapBounds(crime.location.coordinates)) {
+                infraction_level = category_weights[crime.category];
+                if (infraction_level != undefined) {
+                    // only add for known category names
+                    heatMapData.push({location: new google.maps.LatLng(crime.location.coordinates[1], crime.location.coordinates[0]),weight:infraction_level});
+                    //console.log(heatMapData.length);
+                }
             }
         }
     }
@@ -94,8 +106,8 @@ function processPosition(position) {
     currentLoc.lat = lat;
     currentLoc.lng = lng;
 
-    marker.setPosition(new google.maps.LatLng(lat_arr[i], lng_arr[i]));
-    map.panTo(new google.maps.LatLng(lat_arr[i], lng_arr[i]));
+    marker.setPosition(new google.maps.LatLng(lat, lng));
+    map.panTo(new google.maps.LatLng(lat, lng));
 
     var flipped = [lng, lat];
 
@@ -122,7 +134,7 @@ var vdata = gm.info.watchVehicleData(
 	'bulb_frontleft_turn_fail'],
 	1000);
 
-var EV_max_range;
+//var EV_max_range;
 var fuel_level;
 var tire_right_front_pressure;
 var tire_left_front_pressure;
@@ -136,8 +148,9 @@ var bulb_frontleft_turn_fail;
 function processData(data) {
 
 	// Setting variables
-	EV_max_range = data.EV_max_range;
+	//EV_max_range = data.EV_max_range;
 	fuel_level = data.fuel_level;
+    console.log(fuel_level);
 	tire_right_front_pressure = data.tire_right_front_pressure;
 	tire_left_front_pressure = data.tire_left_front_pressure;
 	tire_right_rear_pressure = data.tire_right_rear_pressure;
@@ -147,17 +160,17 @@ function processData(data) {
 	bulb_frontleft_turn_fail = data.bulb_frontleft_turn_fail;
 
 
-	console.log(EV_max_range);
+	//console.log(EV_max_range);
 	// Fuel
-	if ((EV_max_range < 10 && EV_max_range != null) || (fuel_level < 10 && EV_max_range != null)) { // km
+	if (fuel_level < 10) {
 		var element = document.getElementById('alertBoxFuel');
 		element.style.opacity = "1";
 	} else {
 		var element = document.getElementById('alertBoxFuel');
 		element.style.opacity = "0";
-	}
+	};
 
-console.log(tire_right_front_pressure);
+//console.log(tire_right_front_pressure);
 	// Tires
 	if (tire_right_front_pressure < 138 || tire_left_front_pressure < 138 || tire_right_rear_pressure < 138 || tire_left_rear_pressure < 138) { // kPaG
 		var element = document.getElementById('alertBoxTires');
@@ -165,9 +178,9 @@ console.log(tire_right_front_pressure);
 	} else {
 		var element = document.getElementById('alertBoxTires');
 		element.style.opacity = "0";
-	}
+	};
 
-	console.log(bulb_center_fail);
+	//console.log(bulb_center_fail);
 	// Lights
 	if (bulb_center_fail == 1 || bulb_frontright_turn_fail == 1 || bulb_frontleft_turn_fail == 1) { // 1/0
 		var element = document.getElementById('alertBoxLights');
@@ -175,7 +188,7 @@ console.log(tire_right_front_pressure);
 	} else {
 		var element = document.getElementById('alertBoxLights');
 		element.style.opacity = "0";
-	}
+	};
 }
 
 // GO BACK TO THE MASONIC TEMPLE THEATRE

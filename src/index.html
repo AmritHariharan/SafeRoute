@@ -34,13 +34,13 @@
             function exitSplash() {
               document.getElementById('pagestyle').setAttribute('href', "css/app.css");
                 document.getElementById("main").innerHTML = "<div id='map'></div><canvas id='sketch_bar'>\
-                </canvas><button class='w3-btn' id='demoButton' onclick='buttonPress()'>Click to demo</button>\
-                <button class='w3-btn' id='resetButton' onclick='resetButton()'>Reset</button>\
+                </canvas><button class='w3-btn' id='demoButton' onclick='buttonPress()'>Click for demo</button>\
+                <button class='w3-btn' id='resetButton' onclick='resetButton()'>Reset demo</button>\
                 <button class='w3-btn' id='alertBoxFuel'>FUEL LEVEL LOW</button>\
                 <button class='w3-btn' id='alertBoxTires'>TIRE PRESSURE LOW</button>\
                 <button class='w3-btn' id='alertBoxLights'>LIGHTS NOT WORKING</button>";
                 var script = document.createElement("script");
-                script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCX_G1dPeBjtuJYT8LHPLbE9LyorwSOVJo&callback=initMap&libraries=visualization";
+                script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyCX_G1dPeBjtuJYT8LHPLbE9LyorwSOVJo&callback=initMap&libraries=visualization";
                 script.type = "text/javascript";
                 script.hasAttribute("async");
                 script.hasAttribute("defer");

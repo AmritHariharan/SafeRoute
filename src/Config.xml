@@ -2,7 +2,7 @@
 <gmWebApp>
   <AppID>92864044</AppID>
   <AppType>RemoteHigh</AppType>
-  <FriendlyName>trial2</FriendlyName>
+  <FriendlyName>SafeRoute</FriendlyName>
   <VehicleStatus>Drive</VehicleStatus>
   <AutoStart>false</AutoStart>
   <AppCategory>General</AppCategory>

@@ -18,6 +18,7 @@ function getData(callback) {
         if (elapsed > 86400000) { //86400000 for one day
             pullData(function(data) {
                 globalJSON = JSON.parse(data);
+                
                 callback(globalJSON);
             });
         } else { //if a day has not elapsed, check the ram then the disk
@@ -25,6 +26,7 @@ function getData(callback) {
                 console.log("no data in ram, reading from disk");
                 var data = gm.filesystem.readFile("data.json");
                 globalJSON = JSON.parse(data);
+
                 callback(globalJSON);
             } else {
                 callback(globalJSON);
@@ -146,7 +148,7 @@ function badness_at_point(current_location, callback) {
             }
         }
         console.log("sum: " + sum);
-        sum = (sum / range ** 2) * 7000;
+        sum = (sum / range ** 2) * 8000;
         if (sum > 100) {
             sum = 100;
         }
