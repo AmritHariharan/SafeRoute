@@ -7,9 +7,9 @@
   <AutoStart>false</AutoStart>
   <AppCategory>General</AppCategory>
   <IconURL>Icon.png</IconURL>
-  <MainURL>index.html</MainURL>
+  <MainURL>splash.html</MainURL>
   <AppVersion>0.1.0</AppVersion>
-  <SetupURL>setup.html</SetupURL>
+  <SetupURL>index.html</SetupURL>
   <LocalPath>App92864044</LocalPath>
   <Developer>max</Developer>
   <TrustedApp>false</TrustedApp>

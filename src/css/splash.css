@@ -1,0 +1,33 @@
+body{
+  background-size: cover;
+  background: url("/images/splash_bg.png");
+}
+#main {
+    margin-top: 8em;
+    text-align: center;
+}
+
+p1 {
+    font-size: 4em;
+    font-family: "Josefin Sans";
+}
+
+#exitSplashButton {
+    background-color: #0D47A1;
+    top: 10px;
+    right: -30px;
+    border: none;
+    padding: 8px 10px;
+    text-align: center;
+    color: #ffffff;
+    font-family: "Josefin Sans";
+    box-shadow: 0.5px 0.5px 0.5px #666666;
+    border-radius: 5px;
+    font-size: 1.5em;
+    z-index: 100;
+    position: relative;
+}
+
+#exitSplashButton:hover {
+    opacity: 0.6;
+}
