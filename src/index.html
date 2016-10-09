@@ -33,8 +33,12 @@
         <script>
             function exitSplash() {
               document.getElementById('pagestyle').setAttribute('href', "css/app.css");
-                document.getElementById("main").innerHTML =
-                    "<div id='map'></div><canvas id='sketch_bar'></canvas><button class='w3-btn' id='demoButton' onclick='buttonPress()'>Click to demo</button><button class='w3-btn' id='resetButton' onclick='resetButton()'>Reset</button>";
+                document.getElementById("main").innerHTML = "<div id='map'></div><canvas id='sketch_bar'>\
+                </canvas><button class='w3-btn' id='demoButton' onclick='buttonPress()'>Click to demo</button>\
+                <button class='w3-btn' id='resetButton' onclick='resetButton()'>Reset</button>\
+                <button class='w3-btn' id='alertBoxFuel'>FUEL LEVEL LOW</button>\
+                <button class='w3-btn' id='alertBoxTires'>TIRE PRESSURE LOW</button>\
+                <button class='w3-btn' id='alertBoxLights'>LIGHTS NOT WORKING</button>";
                 var script = document.createElement("script");
                 script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCX_G1dPeBjtuJYT8LHPLbE9LyorwSOVJo&callback=initMap&libraries=visualization";
                 script.type = "text/javascript";
@@ -47,8 +51,5 @@
         <script src="js/badness.js"></script>
         <script src="js/app.js"></script>
     </div>
-
-
 </body>
-
 </html>

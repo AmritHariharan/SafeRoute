@@ -102,6 +102,84 @@ function processPosition(position) {
     badness_at_point(flipped, updateSafetyState);
 }
 
+
+// MONITORING CODE
+
+var vdata = gm.info.watchVehicleData(
+	processData,
+	function(){},
+	// Fuel
+	['EV_max_range',
+	'fuel_level',
+	// Tire Pressure
+	'tire_right_front_pressure',
+	'tire_left_front_pressure',
+	'tire_right_rear_pressure',
+	'tire_left_rear_pressure',
+	// Lights
+	'bulb_center_fail',
+	'bulb_frontright_turn_fail',
+	'bulb_frontleft_turn_fail'],
+	1000);
+
+var EV_max_range;
+var fuel_level;
+var tire_right_front_pressure;
+var tire_left_front_pressure;
+var tire_right_rear_pressure;
+var tire_left_rear_pressure;
+var bulb_center_fail;
+var bulb_frontright_turn_fail;
+var bulb_frontleft_turn_fail;
+
+
+function processData(data) {
+
+	// Setting variables
+	EV_max_range = data.EV_max_range;
+	fuel_level = data.fuel_level;
+	tire_right_front_pressure = data.tire_right_front_pressure;
+	tire_left_front_pressure = data.tire_left_front_pressure;
+	tire_right_rear_pressure = data.tire_right_rear_pressure;
+	tire_left_rear_pressure = data.tire_left_rear_pressure;
+	bulb_center_fail = data.bulb_center_fail;
+	bulb_frontright_turn_fail = data.bulb_frontright_turn_fail;
+	bulb_frontleft_turn_fail = data.bulb_frontleft_turn_fail;
+
+
+	console.log(EV_max_range);
+	// Fuel
+	if ((EV_max_range < 10 && EV_max_range != null) || (fuel_level < 10 && EV_max_range != null)) { // km
+		var element = document.getElementById('alertBoxFuel');
+		element.style.opacity = "1";
+	} else {
+		var element = document.getElementById('alertBoxFuel');
+		element.style.opacity = "0";
+	}
+
+console.log(tire_right_front_pressure);
+	// Tires
+	if (tire_right_front_pressure < 138 || tire_left_front_pressure < 138 || tire_right_rear_pressure < 138 || tire_left_rear_pressure < 138) { // kPaG
+		var element = document.getElementById('alertBoxTires');
+		element.style.opacity = "1";
+	} else {
+		var element = document.getElementById('alertBoxTires');
+		element.style.opacity = "0";
+	}
+
+	console.log(bulb_center_fail);
+	// Lights
+	if (bulb_center_fail == 1 || bulb_frontright_turn_fail == 1 || bulb_frontleft_turn_fail == 1) { // 1/0
+		var element = document.getElementById('alertBoxLights');
+		element.style.opacity = "1";
+	} else {
+		var element = document.getElementById('alertBoxLights');
+		element.style.opacity = "0";
+	}
+}
+
+// GO BACK TO THE MASONIC TEMPLE THEATRE
+
 function resetButton() {
     marker.setPosition(new google.maps.LatLng(42.340473, -83.062516));
     map.panTo(new google.maps.LatLng(42.340473, -83.062516));
